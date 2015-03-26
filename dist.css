@@ -1,0 +1,7 @@
+.foo
+    color: #333
+
+$a_variable = #444
+
+.it-works
+    background: #000

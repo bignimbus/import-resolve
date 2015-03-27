@@ -2,7 +2,7 @@
 resolve @import statements in css preprocessors
 
 ## What this does
-What if you have some less or stylus files that you want to smash together into a master file, without compiling to css?  Just use import-resolve and all your dreams will come true.
+What if you have some less or stylus files that you want to smash together into a master file, without compiling to css?  Just use import-resolve and all your dreams will come true.  All `@import` statements will be resolved and you'll be left with one file containing all your precious mixins, variables and declarations.
 
 ## Using import-resolve
 Once this is published in npm...
@@ -17,11 +17,18 @@ var importResolve = require('import-resolve');
 
 // spits out a master dist file with all your wonderful stylesheet
 // things concatenated
-importResolve('path/to/main.less', 'path/to/output.less');
+importResolve({
+    "ext": "less",
+    "pathToMain": "path/to/main.less",
+    "output": "path/to/output.less"
+});
 
 // returns a string of the concatenated file without doing anything
 // with it
-var output = importResolve('path/to/main.styl');
+var output = importResolve({
+    "ext": "styl",
+    "pathToMain": "path/to/main.styl"
+});
 ```
 
 ## Tests

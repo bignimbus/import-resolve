@@ -4,7 +4,6 @@
   "description": "resolve @import statements in stylesheets",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -23,7 +22,7 @@
     "url": "https://github.com/bignimbus/import-resolve/issues"
   },
   "homepage": "https://github.com/bignimbus/import-resolve",
-  "bin": {
-    "import-resolve": "index.js"
+  "devDependencies": {
+    "jasmine-node": "^1.14.3"
   }
 }

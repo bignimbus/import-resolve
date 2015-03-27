@@ -23,7 +23,7 @@ function read (filename) {
         stylesheet = '',
         dir = filename.split('/');
     filename = dir.pop();
-    console.log(filename);
+    console.log('\x1b[34m', 'Reading ' + filename);
     filename = trimExtension(filename) + ext;
     dir = dir.join('/');
 
@@ -43,10 +43,10 @@ function resolve (oldFile) {
 }
 
 module.exports = function importResolve (opts) {
-    opts = opts || {};
     cwd = '';
     root = '';
     dist = '';
+    opts = opts || {};
     ext = ('.' + opts.ext).replace(/\.{2}/, '.');
 
     var oldFile,
@@ -73,10 +73,12 @@ module.exports = function importResolve (opts) {
         }
     }
 
+    console.log('\x1b[32m', 'stylesheets concatenated!');
+
     if (output) {
         fs.writeFileSync(output, dist);
+        console.log('\x1b[36m', 'to ', output);
     } else {
         return dist;
     }
-    console.log('stylesheets concatenated!');
 }

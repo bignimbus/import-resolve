@@ -1,17 +1,30 @@
 #!/usr/bin/env node
 
 var cwd = '',
+    ext = '',
     root = '',
     dist = '',
     fs = require('fs'),
     path = require('path'),
     regex = /@import\s['"](.+?)['"];?/g;
 
+function trimExtension (filename) {
+    filename = filename.split('.');
+    if (filename.length > 1) {
+        filename = filename.slice(0, -1).join('.');
+    } else {
+        filename = filename[0];
+    }
+    return filename;
+}
+
 function read (filename) {
     var cwdStr = '',
         stylesheet = '',
         dir = filename.split('/');
     filename = dir.pop();
+    console.log(filename);
+    filename = trimExtension(filename) + ext;
     dir = dir.join('/');
 
     cwd = path.resolve(root, cwd, dir) + '/';
@@ -29,14 +42,24 @@ function resolve (oldFile) {
     });
 }
 
-module.exports = function importResolve (pathToMain, output) {
+module.exports = function importResolve (opts) {
+    opts = opts || {};
     cwd = '';
     root = '';
     dist = '';
-    var oldFile, resolved, filename;
+    ext = ('.' + opts.ext).replace(/\.{2}/, '.');
+
+    var oldFile,
+        resolved,
+        filename,
+        pathToMain = opts.pathToMain,
+        output = opts.output;
 
     root = (process.cwd() + '/' + pathToMain).split('/');
+
     filename = root.pop();
+    filename = trimExtension(filename);
+
     root = root.join('/') + '/';
 
     dist = read(filename);

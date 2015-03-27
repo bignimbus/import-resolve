@@ -20,6 +20,6 @@ describe('importResolve', function () {
 
     it('should resolve all import statements for complex structures', function () {
         var output = importResolve('tests/complex/static/main.styl');
-        expect(output).toBeDefined();
+        expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
     });
 });

@@ -30,6 +30,10 @@ module.exports = function styleCompile (path, output) {
         }
     }
 
-    fs.writeFileSync(output || './dist.styl', dist);
-    console.log('style compiled!');
+    if (output) {
+        fs.writeFileSync(output, dist);
+    } else {
+        return dist;
+    }
+    console.log('stylesheets concatenated!');
 }

@@ -1,9 +1,10 @@
 {
   "name": "import-resolve",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "resolve @import statements in stylesheets",
   "main": "index.js",
   "scripts": {
+    "test": "jasmine-node tests"
   },
   "repository": {
     "type": "git",

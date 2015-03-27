@@ -15,7 +15,6 @@ function read (filename) {
     dir = dir.join('/');
 
     cwd = path.resolve(root, cwd, dir) + '/';
-    console.log(cwd);
 
     stylesheet =  fs.readFileSync(cwd + filename, {"encoding": "utf8"});
     stylesheet = stylesheet.replace(regex, function (m, capture) {

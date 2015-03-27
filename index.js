@@ -10,11 +10,13 @@ var cwd = '',
 
 function trimExtension (filename) {
     filename = filename.split('.');
+
     if (filename.length > 1) {
         filename = filename.slice(0, -1).join('.');
     } else {
         filename = filename[0];
     }
+
     return filename;
 }
 
@@ -22,6 +24,7 @@ function read (filename) {
     var cwdStr = '',
         stylesheet = '',
         dir = filename.split('/');
+
     filename = dir.pop();
     console.log('\x1b[34m', 'Reading ' + filename);
     filename = trimExtension(filename) + ext;
@@ -33,6 +36,7 @@ function read (filename) {
     stylesheet = stylesheet.replace(regex, function (m, capture) {
         return m && m.replace(capture, cwd + capture);
     });
+
     return stylesheet;
 }
 

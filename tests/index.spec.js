@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var jasmine = require('jasmine-node'),
     importResolve = require('../index.js');
 

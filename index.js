@@ -1,14 +1,38 @@
-#!/usr/bin/env node
-
-var cwd = '',
-    ext = '',
-    root = '',
-    dist = '',
-    fs = require('fs'),
+var fs = require('fs'),
     path = require('path'),
     regex = /@import\s['"](.+?)['"];?/g;
 
-function trimExtension (filename) {
+function ImportResolver (opts) {
+    this.cwd = '';
+    this.dist = '';
+    this.output = opts.output;
+    this.ext = ('.' + opts.ext).replace(/\.{2}/, '.');
+    this.root = (process.cwd() + '/' + opts.pathToMain).split('/');
+    this.resolveImportStatements = function () {
+        var oldFile = '',
+            resolved = false,
+            filename = this.root.pop();
+        filename = this.trimExtension(filename);
+
+        this.root = this.root.join('/') + '/';
+
+        this.dist = this.read(filename);
+
+        while (!resolved) {
+            oldFile = this.dist;
+            this.dist = this.resolve(oldFile);
+            if (this.dist === oldFile) {
+                resolved = true;
+            }
+        }
+
+        console.log('\x1b[32m', 'stylesheets concatenated!');
+
+        return this.dist;
+    };
+}
+
+ImportResolver.prototype.trimExtension = function (filename) {
     filename = filename.split('.');
 
     if (filename.length > 1) {
@@ -18,71 +42,41 @@ function trimExtension (filename) {
     }
 
     return filename;
-}
+};
 
-function read (filename) {
-    var cwdStr = '',
-        stylesheet = '',
+ImportResolver.prototype.read = function (filename) {
+    var stylesheet = '',
         dir = filename.split('/');
 
     filename = dir.pop();
     console.log('\x1b[34m', 'Reading ' + filename);
-    filename = trimExtension(filename) + ext;
+    filename = this.trimExtension(filename) + this.ext;
     dir = dir.join('/');
 
-    cwd = path.resolve(root, cwd, dir) + '/';
+    this.cwd = path.resolve(this.root, this.cwd, dir) + '/';
 
-    stylesheet =  fs.readFileSync(cwd + filename, {"encoding": "utf8"});
+    stylesheet = fs.readFileSync(this.cwd + filename, {"encoding": "utf8"});
     stylesheet = stylesheet.replace(regex, function (m, capture) {
-        return m && m.replace(capture, cwd + capture);
-    });
+        return m && m.replace(capture, this.cwd + capture);
+    }.bind(this));
 
     return stylesheet;
-}
+};
 
-function resolve (oldFile) {
+ImportResolver.prototype.resolve = function (oldFile) {
     return oldFile.replace(regex, function (m, capture) {
-        return read(capture);
-    });
-}
+        return this.read(capture);
+    }.bind(this));
+};
 
 module.exports = function importResolve (opts) {
-    cwd = '';
-    root = '';
-    dist = '';
-    opts = opts || {};
-    ext = ('.' + opts.ext).replace(/\.{2}/, '.');
+    var resolver = new ImportResolver(opts),
+        dist = resolver.resolveImportStatements();
 
-    var oldFile,
-        resolved,
-        filename,
-        pathToMain = opts.pathToMain,
-        output = opts.output;
-
-    root = (process.cwd() + '/' + pathToMain).split('/');
-
-    filename = root.pop();
-    filename = trimExtension(filename);
-
-    root = root.join('/') + '/';
-
-    dist = read(filename);
-    resolved = false;
-
-    while (!resolved) {
-        oldFile = dist;
-        dist = resolve(oldFile);
-        if (dist === oldFile) {
-            resolved = true;
-        }
-    }
-
-    console.log('\x1b[32m', 'stylesheets concatenated!');
-
-    if (output) {
-        fs.writeFileSync(output, dist);
-        console.log('\x1b[36m', 'to ', output);
+    if (resolver.output) {
+        fs.writeFileSync(resolver.output, dist);
+        console.log('\x1b[36m', 'to ', resolver.output);
     } else {
         return dist;
     }
-}
+};

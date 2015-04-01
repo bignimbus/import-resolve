@@ -34,13 +34,7 @@ function ImportResolver (opts) {
 
 ImportResolver.prototype.trimExtension = function (filename) {
     filename = filename.split('.');
-
-    if (filename.length > 1) {
-        filename = filename.slice(0, -1).join('.');
-    } else {
-        filename = filename[0];
-    }
-
+    filename = filename.length > 1 ? filename.slice(0, -1).join('.') : filename[0];
     return filename;
 };
 

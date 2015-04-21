@@ -4,8 +4,44 @@ resolve @import statements in css preprocessors
 ## What this does
 What if you have some less or stylus files that you want to smash together into a master file, without compiling to css?  Just use import-resolve and all your dreams will come true.  All `@import` statements will be resolved and you'll be left with one file containing all your precious mixins, variables and declarations.
 
+### Example:
+
+```less
+// foo.less
+@color_1: #444444;
+@color_2: #555555;
+
+// random-dir/bar.less
+.mixin () {
+    font-size: 16px;
+}
+
+// main.less
+@import 'foo.less';
+@import 'random-dir/bar.less';
+
+#it-worked {
+    color: green;
+}
+```
+
+becomes...
+
+```less
+@color_1: #444444;
+@color_2: #555555;
+
+.mixin () {
+    font-size: 16px;
+}
+
+#it-worked {
+    color: green;
+}
+
+```
+
 ## Using import-resolve
-Once this is published in npm...
 
 ```
 npm install import-resolve
@@ -23,11 +59,15 @@ importResolve({
     "output": "path/to/output.less"
 });
 
-// returns a string of the concatenated file without doing anything
-// with it
+// if you don't specify an output file, output accepts a callback parameter
+// and passes the concatenated file text
 var output = importResolve({
     "ext": "styl",
     "pathToMain": "path/to/main.styl"
+}, function (output) {
+    fs.writeFile('foo.styl', output, function (){
+        console.log('did it myself.');
+    });
 });
 ```
 

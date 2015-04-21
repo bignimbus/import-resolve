@@ -1,6 +1,7 @@
 var fs = require('fs'),
     path = require('path'),
-    regex = /@import\s['"](.+?)['"];?/g;
+    mkdirp = require('mkdirp'),
+    regex = /@import[^'"]+?['"](.+?)['"];?/g;
 
 function ImportResolver (opts) {
     this.cwd = '';
@@ -31,6 +32,12 @@ function ImportResolver (opts) {
         return this.dist;
     };
 }
+
+ImportResolver.prototype.write = function (dist) {
+    fs.writeFile(this.output, dist, function () {
+        console.log('\x1b[36m', 'to ', this.output);
+    });
+};
 
 ImportResolver.prototype.trimExtension = function (filename) {
     filename = filename.split('.');
@@ -63,14 +70,26 @@ ImportResolver.prototype.resolve = function (oldFile) {
     }.bind(this));
 };
 
-module.exports = function importResolve (opts) {
+ImportResolver.prototype.writeToFile = function (dist, callback) {
+    var output = this.output.split('/'),
+        outPath = /\./.test(output.reverse()[0]) ? output.slice(0, -1).join('/') : output;
+    fs.stat(outPath, function (err, stats) {
+        if (err) {
+            mkdirp.sync(outPath);
+        }
+        this.write();
+    }.bind(this));
+};
+
+module.exports = function importResolve (opts, callback, context) {
     var resolver = new ImportResolver(opts),
         dist = resolver.resolveImportStatements();
 
     if (resolver.output) {
-        fs.writeFileSync(resolver.output, dist);
-        console.log('\x1b[36m', 'to ', resolver.output);
-    } else {
-        return dist;
+        resolver.writeToFile(dist);
+        resolver.write(dist);
     }
+
+    callback = callback.bind(context || this, dist);
+    callback();
 };

@@ -9,6 +9,20 @@ describe('importResolve', function () {
         expect(importResolve).toBeDefined();
     });
 
+    it('should function without a callback', function () {
+        var error;
+        try {
+            importResolve({
+                "pathToMain": "tests/styl/main.styl",
+                "ext": "styl"
+            });
+        } catch (e) {
+            console.log('error');
+            error = e;
+        }
+        expect(error).toBeUndefined();
+    });
+
     it('should resolve all import statements for styl files in simple structures', function () {
         importResolve({
             "pathToMain": "tests/styl/main.styl",

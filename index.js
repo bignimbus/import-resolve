@@ -36,7 +36,7 @@ function ImportResolver (opts) {
 ImportResolver.prototype.write = function (dist) {
     fs.writeFile(this.output, dist, function () {
         console.log('\x1b[36m', 'to ', this.output);
-    });
+    }.bind(this));
 };
 
 ImportResolver.prototype.trimExtension = function (filename) {
@@ -90,6 +90,8 @@ module.exports = function importResolve (opts, callback, context) {
         resolver.write(dist);
     }
 
-    callback = callback.bind(context || this, dist);
-    callback();
+    callback = callback && callback.bind(context || this, dist);
+    if (callback) {
+        callback();
+    }
 };

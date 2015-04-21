@@ -87,7 +87,6 @@ module.exports = function importResolve (opts, callback, context) {
 
     if (resolver.output) {
         resolver.writeToFile(dist);
-        resolver.write(dist);
     }
 
     callback = callback && callback.bind(context || this, dist);

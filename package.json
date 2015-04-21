@@ -1,6 +1,6 @@
 {
   "name": "import-resolve",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "resolve @import statements in stylesheets",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,11 @@
     "url": "https://github.com/bignimbus/import-resolve/issues"
   },
   "homepage": "https://github.com/bignimbus/import-resolve",
+  "dependencies": {
+    "mkdirp": "^0.5.0"
+  },
   "devDependencies": {
     "jasmine-node": "^1.14.3",
-    "mkdir": "0.0.2",
-    "mkdirp": "^0.5.0"
+    "mkdir": "0.0.2"
   }
 }

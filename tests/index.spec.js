@@ -4,25 +4,37 @@ var jasmine = require('jasmine-node'),
     rmdir = require('rmdir');
 
 describe('importResolve', function () {
-
     it('should exist', function () {
         expect(importResolve).toBeDefined();
     });
+});
 
-    it('should function without a callback', function () {
-        var error;
+describe('importResolve', function () {
+    var error;
+    beforeEach(function (done) {
         try {
             importResolve({
                 "pathToMain": "tests/styl/main.styl",
                 "ext": "styl"
             });
         } catch (e) {
-            console.log('error');
             error = e;
         }
-        expect(error).toBeUndefined();
+        done();
     });
 
+    afterEach(function () {
+        error = null;
+    });
+
+    it('should function without a callback', function (done) {
+        expect(error).toBeUndefined();
+        done();
+    });
+
+});
+
+describe('importResolve', function () {
     it('should resolve all import statements for styl files in simple structures', function () {
         importResolve({
             "pathToMain": "tests/styl/main.styl",
@@ -54,30 +66,34 @@ describe('importResolve', function () {
 describe('file write system', function () {
     beforeEach(function (done) {
         rmdir('tests/output', function () {
-            fs.mkdirSync('tests/output');
-            done();
+            fs.mkdir('tests/output', done);
+        });
+    });
+
+    afterEach(function () {
+        rmdir('tests/output', function () {
+            console.log('tests finished');
         });
     });
 
     it('should write to the file specified in the optional "output" settings param', function (done) {
-        var error = 'no errors!';
+        var error = 'no errors!',
+            output = 'tests/output/path/doesnt/exist/yet.styl';
 
         importResolve({
-            "pathToMain": "tests/complex/static/main.styl",
-            "ext": "styl",
-            "output": "tests/output/path/doesnt/exist/yet.styl"
-        }, function () {
-            try {
-                fs.statSync('tests/output/path/doesnt/exist/yet.styl');
-            } catch (e) {
-                error = e;
-            }
+                "pathToMain": "tests/complex/static/main.styl",
+                "ext": "styl",
+                "output": output
+            }, function () {
+                try {
+                    fs.statSync(output);
+                } catch (e) {
+                    error = e;
+                }
 
-            expect(error).toBeDefined('no errors!');
-            rmdir('tests/output', function () {
-                console.log('tests finished');
+                expect(error).toBe('no errors!');
+                expect(fs.readFileSync(output, {"encoding": "utf8"})).toBeDefined();
+                done();
             });
-            done();
-        });
     });
 });

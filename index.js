@@ -33,9 +33,12 @@ function ImportResolver (opts) {
     };
 }
 
-ImportResolver.prototype.write = function (dist) {
+ImportResolver.prototype.writeToFile = function (dist, fn) {
     fs.writeFile(this.output, dist, function () {
         console.log('\x1b[36m', 'to ', this.output);
+        if (fn) {
+            fn();
+        }
     }.bind(this));
 };
 
@@ -70,27 +73,28 @@ ImportResolver.prototype.resolve = function (oldFile) {
     }.bind(this));
 };
 
-ImportResolver.prototype.writeToFile = function (dist, callback) {
-    var output = this.output.split('/'),
-        outPath = /\./.test(output.reverse()[0]) ? output.slice(0, -1).join('/') : output;
-    fs.stat(outPath, function (err, stats) {
-        if (err) {
-            mkdirp.sync(outPath);
-        }
-        this.write();
-    }.bind(this));
+ImportResolver.prototype.write = function (dist, fn) {
+    if (this.output) {
+        var output = this.output.split('/'),
+            outPath;
+        output.reverse();
+        outPath = /\./.test(output[0]) ? output.reverse().slice(0, -1).join('/') : output.reverse().join('/');
+        fs.stat(outPath, function (err, stats) {
+            if (err) {
+                mkdirp.sync(outPath);
+            }
+            this.writeToFile(dist, fn);
+        }.bind(this));
+    } else if (fn) {
+        fn();
+    }
 };
 
-module.exports = function importResolve (opts, callback, context) {
+module.exports = function importResolve (opts, fn, context) {
     var resolver = new ImportResolver(opts),
         dist = resolver.resolveImportStatements();
 
-    if (resolver.output) {
-        resolver.writeToFile(dist);
-    }
+    fn = fn && fn.bind(context || this, dist);
 
-    callback = callback && callback.bind(context || this, dist);
-    if (callback) {
-        callback();
-    }
+    resolver.write(dist, fn);
 };

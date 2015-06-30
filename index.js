@@ -60,9 +60,11 @@ ImportResolver.prototype.read = function (filename) {
     this.cwd = path.resolve(this.root, this.cwd, dir) + '/';
 
     stylesheet = fs.readFileSync(this.cwd + filename, {"encoding": "utf8"});
-    stylesheet = stylesheet.replace(regex, function (m, capture) {
-        return m && m.replace(capture, this.cwd + capture);
-    }.bind(this));
+    if (regex.test(stylesheet)) {
+        stylesheet = stylesheet.replace(regex, function (m, capture) {
+            return m && m.replace(capture, this.cwd + capture);
+        }.bind(this));
+    }
 
     return stylesheet;
 };

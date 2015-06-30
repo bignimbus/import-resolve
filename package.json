@@ -1,6 +1,6 @@
 {
   "name": "import-resolve",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "resolve @import statements in stylesheets",
   "main": "index.js",
   "scripts": {

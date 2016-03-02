@@ -65,7 +65,7 @@ ImportResolver.prototype.read = function (filename) {
         try {
             stylesheet = fs.readFileSync(this.cwd + '_' + filename, {"encoding": "utf8"});
         } catch (er) {
-            console.log('\x1b[36m', 'to ', 'Cannot read file "'+filename+'"');
+            console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
         }
     }
 

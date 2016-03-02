@@ -49,7 +49,7 @@ describe('importResolve', function () {
             "pathToMain": "tests/less/main.less",
             "ext": "less"
         }, function (output) {
-            expect(output).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}');
+            expect(output).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
         });
     });
 

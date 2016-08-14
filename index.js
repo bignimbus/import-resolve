@@ -7,6 +7,7 @@ function ImportResolver (opts) {
     this.cwd = '';
     this.dist = '';
     this.output = opts.output;
+    this.alias = opts.alias;
     this.ext = ('.' + opts.ext).replace(/\.{2}/, '.');
     this.root = (process.cwd() + '/' + opts.pathToMain).split('/');
     this.resolveImportStatements = function () {
@@ -43,14 +44,20 @@ ImportResolver.prototype.writeToFile = function (dist, fn) {
 };
 
 ImportResolver.prototype.trimExtension = function (filename) {
-    filename = filename.split('.');
-    filename = filename.length > 1 ? filename.slice(0, -1).join('.') : filename[0];
+    if (filename.indexOf(this.ext) !== -1) {
+      filename = filename.split('.');
+      filename = filename.length > 1 ? filename.slice(0, -1).join('.') : filename[0];
+    }
     return filename;
 };
 
-ImportResolver.prototype.read = function (filename) {
+ImportResolver.prototype.read = function (filenameWithPath) {
     var stylesheet = '',
-        dir = filename.split('/');
+        dir = filenameWithPath.split('/'),
+        filename,
+        filesToReadInPriority,
+        filesToReadInPriorityLength,
+        alias = this.alias[filenameWithPath];
 
     filename = dir.pop();
     console.log('\x1b[34m', 'Reading ' + filename);
@@ -59,14 +66,26 @@ ImportResolver.prototype.read = function (filename) {
 
     this.cwd = path.resolve(this.root, this.cwd, dir) + '/';
 
-    try {
-        stylesheet = fs.readFileSync(this.cwd + filename, {"encoding": "utf8"});
-    } catch (e) {
-        try {
-            stylesheet = fs.readFileSync(this.cwd + '_' + filename, {"encoding": "utf8"});
-        } catch (er) {
-            console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
-        }
+    filesToReadInPriority = [
+      this.cwd + filename,
+      this.cwd + '_' + filename
+    ];
+    if (alias !== undefined) {
+      filesToReadInPriority.concat(alias);
+    }
+    filesToReadInPriorityLength = filesToReadInPriority.length;
+
+    for (var filesToReadInPriorityIndex = 0; filesToReadInPriorityIndex < filesToReadInPriorityLength; filesToReadInPriorityIndex++) {
+      try {
+          stylesheet = fs.readFileSync(filesToReadInPriority[filesToReadInPriorityIndex], {"encoding": "utf8"});
+      } catch (e) {
+          if (filesToReadInPriorityIndex === filesToReadInPriorityLength - 1) {
+              console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
+          }
+      }
+      if (stylesheet.length > 0) {
+          break;
+      }
     }
 
     if (regex.test(stylesheet)) {

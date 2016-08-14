@@ -4,7 +4,6 @@ var fs = require('fs'),
     regex = /@import[^'"]+?['"](.+?)['"];?/g;
 
 function ImportResolver (opts) {
-    this.cwd = '';
     this.dist = '';
     this.output = opts.output;
     this.alias = opts.alias || {};
@@ -65,7 +64,7 @@ ImportResolver.prototype.read = function (filename) {
     if (path.isAbsolute(filename)) {
       filenameWithPath = filename;
     } else {
-      filenameWithPath = path.join(this.root, this.cwd, filename);
+      filenameWithPath = path.join(this.root, filename);
     }
 
     filenameWithPathAndExtension = this.trimExtension(filenameWithPath) + this.ext;

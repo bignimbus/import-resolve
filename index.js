@@ -7,7 +7,9 @@ function ImportResolver (opts) {
     this.cwd = '';
     this.dist = '';
     this.output = opts.output;
-    this.alias = opts.alias;
+    this.alias = opts.alias || {};
+    this.aliasKeys = Object.keys(this.alias);
+    this.aliasKeysLength = this.aliasKeys.length;
     this.ext = ('.' + opts.ext).replace(/\.{2}/, '.');
     this.root = (process.cwd() + '/' + opts.pathToMain).split('/');
     this.resolveImportStatements = function () {
@@ -51,28 +53,27 @@ ImportResolver.prototype.trimExtension = function (filename) {
     return filename;
 };
 
-ImportResolver.prototype.read = function (filenameWithPath) {
+ImportResolver.prototype.read = function (filename) {
     var stylesheet = '',
-        dir = filenameWithPath.split('/'),
-        filename,
         filesToReadInPriority,
         filesToReadInPriorityLength,
-        alias = this.alias[filenameWithPath];
+        filenameWithPath,
+        filenameWithPathAndExtension,
+        filePath,
+        aliasKey;
 
-    filename = dir.pop();
-    console.log('\x1b[34m', 'Reading ' + filename);
-    filename = this.trimExtension(filename) + this.ext;
-    dir = dir.join('/');
+    if (path.isAbsolute(filename)) {
+      filenameWithPath = filename;
+    } else {
+      filenameWithPath = path.join(this.root, this.cwd, filename);
+    }
 
-    this.cwd = path.resolve(this.root, this.cwd, dir) + '/';
+    filenameWithPathAndExtension = this.trimExtension(filenameWithPath) + this.ext;
 
     filesToReadInPriority = [
-      this.cwd + filename,
-      this.cwd + '_' + filename
+      filenameWithPathAndExtension,
+      path.resolve(path.dirname(filenameWithPathAndExtension), '_' + path.basename(filenameWithPathAndExtension)) // Same path just with "_" before filename
     ];
-    if (alias !== undefined) {
-      filesToReadInPriority.concat(alias);
-    }
     filesToReadInPriorityLength = filesToReadInPriority.length;
 
     for (var filesToReadInPriorityIndex = 0; filesToReadInPriorityIndex < filesToReadInPriorityLength; filesToReadInPriorityIndex++) {
@@ -88,9 +89,22 @@ ImportResolver.prototype.read = function (filenameWithPath) {
       }
     }
 
+    if (this.aliasKeys.length !== 0) {
+        for (var aliasKeysIndex = 0; aliasKeysIndex < this.aliasKeysLength; aliasKeysIndex++) {
+            aliasKey = this.aliasKeys[aliasKeysIndex];
+            if (stylesheet.match(aliasKey)) {
+                stylesheet = stylesheet.replace(new RegExp(aliasKey, 'g'), this.alias[aliasKey]);
+            }
+        }
+    }
+    filePath = path.dirname(filenameWithPathAndExtension);
     if (regex.test(stylesheet)) {
         stylesheet = stylesheet.replace(regex, function (m, capture) {
-            return m && m.replace(capture, this.cwd + capture);
+            if (!path.isAbsolute(capture)) {
+                return m && m.replace(capture, path.join(filePath, capture));
+            } else {
+                return m;
+            }
         }.bind(this));
     }
 

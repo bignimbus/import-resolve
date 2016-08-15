@@ -61,6 +61,27 @@ describe('importResolve', function () {
             expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
         });
     });
+
+    it('should resolve all import statements for file paths containing "."', function () {
+        importResolve({
+            "pathToMain": "tests/dot/static/main.dot.dot.styl",
+            "ext": "styl"
+        }, function (output) {
+            expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal\n');
+        });
+    });
+
+    it('should resolve all import statements for file paths containing "."', function () {
+        importResolve({
+            "pathToMain": "tests/alias/static/main.styl",
+            "ext": "styl",
+            "alias": {
+              "foo": "./tests/alias/common/mixins.styl"
+            }
+        }, function (output) {
+            expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal\n');
+        });
+    });
 });
 
 describe('file write system', function () {

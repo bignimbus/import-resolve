@@ -29,7 +29,7 @@ function ImportResolver (opts) {
             }
         }
 
-        console.log('\x1b[32m', 'stylesheets concatenated!');
+        console.log('\n\x1b[32m', 'stylesheets concatenated!');
 
         return this.dist;
     };
@@ -37,7 +37,7 @@ function ImportResolver (opts) {
 
 ImportResolver.prototype.writeToFile = function (dist, fn) {
     fs.writeFile(this.output, dist, function () {
-        console.log('\x1b[36m', 'to ', this.output);
+        console.log('\n\x1b[36m', 'to ', this.output);
         if (fn) {
             fn();
         }
@@ -80,7 +80,7 @@ ImportResolver.prototype.read = function (filename) {
           stylesheet = fs.readFileSync(filesToReadInPriority[filesToReadInPriorityIndex], {"encoding": "utf8"});
       } catch (e) {
           if (filesToReadInPriorityIndex === filesToReadInPriorityLength - 1) {
-              console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
+              console.log('\n\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
           }
       }
       if (stylesheet.length > 0) {

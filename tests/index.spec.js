@@ -1,6 +1,7 @@
 var jasmine = require('jasmine-node'),
     importResolve = require('../index.js'),
     fs = require('fs'),
+    path = require('path'),
     rmdir = require('rmdir');
 
 describe('importResolve', function () {
@@ -34,13 +35,17 @@ describe('importResolve', function () {
 
 });
 
+// On windows there are some characters that are added to the output, removed them
+var removeSomeChars = function(str) {
+  return unescape(escape(str).replace(/%0D/g, ''));
+}
 describe('importResolve', function () {
     it('should resolve all import statements for styl files in simple structures', function () {
         importResolve({
             "pathToMain": "tests/styl/main.styl",
             "ext": "styl"
         }, function (output) {
-            expect(output).toBe('.foo\n    color: #333\n\n$bar = #444\n\n$variable_1 = 16px\n$variable_2 = 3em\n\n.foo\n    background: #000');
+            expect(removeSomeChars(output)).toBe('.foo\n    color: #333\n\n$bar = #444\n\n$variable_1 = 16px\n$variable_2 = 3em\n\n.foo\n    background: #000');
         });
     });
 
@@ -49,7 +54,7 @@ describe('importResolve', function () {
             "pathToMain": "tests/less/main.less",
             "ext": "less"
         }, function (output) {
-            expect(output).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
+            expect(removeSomeChars(output)).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
         });
     });
 
@@ -58,8 +63,28 @@ describe('importResolve', function () {
             "pathToMain": "tests/complex/static/main.styl",
             "ext": "styl"
         }, function (output) {
-            expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
+            expect(removeSomeChars(output)).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
         });
+    });
+
+    it('should resolve all import and use alias when needed', function() {
+      importResolve({
+          "pathToMain": "tests/less/alias.less",
+          "ext": "less",
+          "alias": {
+            "~myAlias": "./main.less"
+          }
+      }, function (output) {
+          expect(removeSomeChars(output)).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
+      });
+    });
+    it('should work for absolute paths too', function() {
+      importResolve({
+          "pathToMain": path.join(__dirname, 'less', 'main.less'),
+          "ext": "less"
+      }, function (output) {
+          expect(removeSomeChars(output)).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
+      });
     });
 });
 

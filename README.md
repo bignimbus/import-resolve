@@ -69,6 +69,16 @@ var output = importResolve({
         console.log('did it myself.');
     });
 });
+
+// You can pass alias if you have some files which have alias in your build process
+importResolve({
+    "ext": "less",
+    "pathToMain": "path/to/main.less",
+    "output": "path/to/output.less",
+    "alias": {
+        "~myUniqueAlias": "path/to/unique/file.less"
+    }
+});
 ```
 
 ## Tests

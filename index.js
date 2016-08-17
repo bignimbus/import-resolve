@@ -4,9 +4,11 @@ var fs = require('fs'),
     regex = /@import[^'"]+?['"](.+?)['"];?/g;
 
 function ImportResolver (opts) {
-    this.cwd = '';
     this.dist = '';
     this.output = opts.output;
+    this.alias = opts.alias || {};
+    this.aliasKeys = Object.keys(this.alias);
+    this.aliasKeysLength = this.aliasKeys.length;
     this.ext = ('.' + opts.ext).replace(/\.{2}/, '.');
     this.root = (process.cwd() + '/' + opts.pathToMain).split('/');
     this.resolveImportStatements = function () {
@@ -43,35 +45,65 @@ ImportResolver.prototype.writeToFile = function (dist, fn) {
 };
 
 ImportResolver.prototype.trimExtension = function (filename) {
-    filename = filename.split('.');
-    filename = filename.length > 1 ? filename.slice(0, -1).join('.') : filename[0];
+    if (filename.indexOf(this.ext) !== -1) {
+      filename = filename.split('.');
+      filename = filename.length > 1 ? filename.slice(0, -1).join('.') : filename[0];
+    }
     return filename;
 };
 
 ImportResolver.prototype.read = function (filename) {
     var stylesheet = '',
-        dir = filename.split('/');
+        filesToReadInPriority,
+        filesToReadInPriorityLength,
+        filenameWithPath,
+        filenameWithPathAndExtension,
+        filePath,
+        aliasKey;
 
-    filename = dir.pop();
-    console.log('\x1b[34m', 'Reading ' + filename);
-    filename = this.trimExtension(filename) + this.ext;
-    dir = dir.join('/');
-
-    this.cwd = path.resolve(this.root, this.cwd, dir) + '/';
-
-    try {
-        stylesheet = fs.readFileSync(this.cwd + filename, {"encoding": "utf8"});
-    } catch (e) {
-        try {
-            stylesheet = fs.readFileSync(this.cwd + '_' + filename, {"encoding": "utf8"});
-        } catch (er) {
-            console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
-        }
+    if (path.isAbsolute(filename)) {
+      filenameWithPath = filename;
+    } else {
+      filenameWithPath = path.join(this.root, filename);
     }
 
+    filenameWithPathAndExtension = this.trimExtension(filenameWithPath) + this.ext;
+
+    filesToReadInPriority = [
+      filenameWithPathAndExtension,
+      path.resolve(path.dirname(filenameWithPathAndExtension), '_' + path.basename(filenameWithPathAndExtension)) // Same path just with "_" before filename
+    ];
+    filesToReadInPriorityLength = filesToReadInPriority.length;
+
+    for (var filesToReadInPriorityIndex = 0; filesToReadInPriorityIndex < filesToReadInPriorityLength; filesToReadInPriorityIndex++) {
+      try {
+          stylesheet = fs.readFileSync(filesToReadInPriority[filesToReadInPriorityIndex], {"encoding": "utf8"});
+      } catch (e) {
+          if (filesToReadInPriorityIndex === filesToReadInPriorityLength - 1) {
+              console.log('\x1b[36m', 'to ', 'Cannot read file "' + filename + '"');
+          }
+      }
+      if (stylesheet.length > 0) {
+          break;
+      }
+    }
+
+    if (this.aliasKeys.length !== 0) {
+        for (var aliasKeysIndex = 0; aliasKeysIndex < this.aliasKeysLength; aliasKeysIndex++) {
+            aliasKey = this.aliasKeys[aliasKeysIndex];
+            if (stylesheet.match(aliasKey)) {
+                stylesheet = stylesheet.replace(new RegExp(aliasKey, 'g'), this.alias[aliasKey]);
+            }
+        }
+    }
+    filePath = path.dirname(filenameWithPathAndExtension);
     if (regex.test(stylesheet)) {
         stylesheet = stylesheet.replace(regex, function (m, capture) {
-            return m && m.replace(capture, this.cwd + capture);
+            if (!path.isAbsolute(capture)) {
+                return m && m.replace(capture, path.join(filePath, capture));
+            } else {
+                return m;
+            }
         }.bind(this));
     }
 

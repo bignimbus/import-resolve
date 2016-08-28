@@ -48,5 +48,23 @@ describe('ImportResolver', function () {
             });
         });
     });
+
+    describe('#trimExtension', function () {
+        beforeEach(function () {
+            subject = ImportResolver.prototype.trimExtension;
+        });
+        afterEach(function () {
+            subject = null;
+        });
+
+        it('should remove the extension from the provided path', function () {
+            expect(subject('foo/bar/baz.bing')).toBe('foo/bar/baz');
+            expect(subject('foo/bar/baz.bing.qux')).toBe('foo/bar/baz.bing');
+            expect(subject('foo.bar/baz.bing.qux')).toBe('foo.bar/baz.bing');
+            expect(subject('./foo.bar/baz.bing.qux')).toBe('./foo.bar/baz.bing');
+            expect(subject('./foo/bar/baz')).toBe('./foo/bar/baz');
+            expect(subject('../foo/bar/baz')).toBe('../foo/bar/baz');
+        });
+    });
 });
 

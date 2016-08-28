@@ -104,13 +104,47 @@ describe('ImportResolver', function () {
         });
     });
 
-    describe('#read', function () {
+    describe('#normalizeImport', function () {
         beforeEach(function () {
-
+            subject = ImportResolver.prototype.normalizeImport.bind({
+                "cwd": "foo/"
+            });
         });
         afterEach(function () {
             subject = null;
         });
+
+        it('should not mutate the string if there are no statements matching the default import regular expression', function () {
+            var str = '.foo { display: none; }';
+            expect(subject(str)).toBe(str);
+        });
+
+        it('should replace "@import path/to/file" with a normalized file path via the cwd', function () {
+            var str = '@import "bar/baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/bar/baz"; .foo { display: none; }');
+            str = '@import "./bar/baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/bar/baz"; .foo { display: none; }');
+            str = '@import "../bar/baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + process.cwd() + '/bar/baz"; .foo { display: none; }');
+            str = '@import "/bar/baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "/bar/baz"; .foo { display: none; }');
+            str = '@import "baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/baz"; .foo { display: none; }');
+            str = '@import "./baz"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/baz"; .foo { display: none; }');
+        });
+    });
+
+    describe('#read', function () {
+        // TODO add unit tests
+    });
+
+    describe('#resolve', function () {
+        // TODO add unit tests
+    });
+
+    describe('#write', function () {
+        // TODO add unit tests
     });
 });
 

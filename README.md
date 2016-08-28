@@ -72,4 +72,11 @@ var output = importResolve({
 ```
 
 ## Tests
-`npm test`
+
+```bash
+npm test
+
+# Due to a bug in `jasmine-node`, Windows users should run: 
+npm run-script win-test
+```
+

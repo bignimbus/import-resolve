@@ -4,7 +4,8 @@
   "description": "resolve @import statements in stylesheets",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node tests"
+    "test": "jasmine-node tests",
+    "win-test": "jasmine-node tests && jasmine-node tests/lib"
   },
   "repository": {
     "type": "git",

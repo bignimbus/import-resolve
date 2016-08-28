@@ -34,7 +34,7 @@ describe('importResolve integration', function () {
             "pathToMain": "tests/styl/main.styl",
             "ext": "styl"
         }, function (output) {
-            expect(output).toBe('.foo\n    color: #333\n\n$bar = #444\n\n$variable_1 = 16px\n$variable_2 = 3em\n\n.foo\n    background: #000');
+            expect(output.trim()).toBe('.foo\n    color: #333\n\n$bar = #444\n\n$variable_1 = 16px\n$variable_2 = 3em\n\n.foo\n    background: #000');
         });
     });
 
@@ -43,7 +43,7 @@ describe('importResolve integration', function () {
             "pathToMain": "tests/less/main.less",
             "ext": "less"
         }, function (output) {
-            expect(output).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}\n');
+            expect(output.trim()).toBe('@font-size: 12px;\n\n.mixin() {\n    font-weight: bold;\n}\n#foo {\n    font-size: @font_size;\n}\n.bar {\n    .mixin();\n}');
         });
     });
 
@@ -52,7 +52,7 @@ describe('importResolve integration', function () {
             "pathToMain": "tests/complex/static/main.styl",
             "ext": "styl"
         }, function (output) {
-            expect(output).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
+            expect(output.trim()).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
         });
     });
 });

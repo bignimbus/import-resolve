@@ -66,5 +66,51 @@ describe('ImportResolver', function () {
             expect(subject('../foo/bar/baz')).toBe('../foo/bar/baz');
         });
     });
+
+    describe('#getFile', function () {
+        beforeEach(function () {
+            subject = new ImportResolver({
+                "output": "foo",
+                "ext": "bar",
+                "pathToMain": "baz/bing"
+            });
+            spyOn(fs, 'readFileSync').andCallFake(function (str, encoding) {
+                switch(str) {
+                    case 'foo/bar':
+                        return 'bar';
+                    case 'foo/_baz':
+                        return 'baz';
+                    default:
+                        throw new Error();
+                }
+            });
+        });
+        afterEach(function () {
+            subject = null;
+        });
+
+        it('should return the result of reading the cwd plus the filename', function () {
+            subject.cwd = 'foo/';
+            var output = subject.getFile('bar');
+            expect(fs.readFileSync).toHaveBeenCalledWith('foo/bar', {"encoding": "utf8"});
+            expect(output).toBe('bar');
+        });
+
+        it('should also try reading "_filename" if "filename" does not exist', function () {
+            subject.cwd = 'foo/';
+            var output = subject.getFile('baz');
+            expect(fs.readFileSync).toHaveBeenCalledWith('foo/baz', {"encoding": "utf8"});
+            expect(output).toBe('baz');
+        });
+    });
+
+    describe('#read', function () {
+        beforeEach(function () {
+
+        });
+        afterEach(function () {
+            subject = null;
+        });
+    });
 });
 

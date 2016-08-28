@@ -3,13 +3,7 @@ var jasmine = require('jasmine-node'),
     fs = require('fs'),
     rmdir = require('rmdir');
 
-describe('importResolve', function () {
-    it('should exist', function () {
-        expect(importResolve).toBeDefined();
-    });
-});
-
-describe('importResolve', function () {
+describe('importResolve integration', function () {
     var error;
     beforeEach(function (done) {
         try {
@@ -34,7 +28,7 @@ describe('importResolve', function () {
 
 });
 
-describe('importResolve', function () {
+describe('importResolve integration', function () {
     it('should resolve all import statements for styl files in simple structures', function () {
         importResolve({
             "pathToMain": "tests/styl/main.styl",

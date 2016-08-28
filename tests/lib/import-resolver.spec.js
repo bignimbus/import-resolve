@@ -1,7 +1,12 @@
 'use strict';
 
 var ImportResolver = require('../../lib/import-resolver'),
-    fs = require('fs');
+    fs = require('fs'),
+    path = require('path');
+
+function normalize (str) {
+    return path.normalize(str);
+}
 
 describe('ImportResolver', function () {
     var subject;
@@ -10,7 +15,7 @@ describe('ImportResolver', function () {
             subject = new ImportResolver({
                 "output": "foo",
                 "ext": "bar",
-                "pathToMain": "baz/bing"
+                "pathToMain": normalize("baz/bing")
             });
         });
         afterEach(function () {
@@ -24,7 +29,7 @@ describe('ImportResolver', function () {
             expect(subject.ext).toBe('.bar');
         });
         it('should set the root path', function () {
-            expect(subject.root).toEqual(process.cwd().split('/').concat(['baz', 'bing']));
+            expect(subject.root).toEqual(process.cwd().split(path.sep).concat(['baz', 'bing']));
         });
     });
 
@@ -33,7 +38,7 @@ describe('ImportResolver', function () {
             subject = new ImportResolver({
                 "output": "foo",
                 "ext": "bar",
-                "pathToMain": "baz/bing"
+                "pathToMain": normalize("baz/bing")
             });
         });
         afterEach(function () {
@@ -41,8 +46,8 @@ describe('ImportResolver', function () {
         });
 
         it('should be able to call a callback function', function () {
-            subject.writeToFile('./foo', function () {
-                fs.unlinkSync('./foo');
+            subject.writeToFile(normalize('./foo'), function () {
+                fs.unlinkSync(normalize('./foo'));
                 expect(1).toBe(1);
                 done();
             });
@@ -58,12 +63,12 @@ describe('ImportResolver', function () {
         });
 
         it('should remove the extension from the provided path', function () {
-            expect(subject('foo/bar/baz.bing')).toBe('foo/bar/baz');
-            expect(subject('foo/bar/baz.bing.qux')).toBe('foo/bar/baz.bing');
-            expect(subject('foo.bar/baz.bing.qux')).toBe('foo.bar/baz.bing');
-            expect(subject('./foo.bar/baz.bing.qux')).toBe('./foo.bar/baz.bing');
-            expect(subject('./foo/bar/baz')).toBe('./foo/bar/baz');
-            expect(subject('../foo/bar/baz')).toBe('../foo/bar/baz');
+            expect(subject(normalize('foo/bar/baz.bing'))).toBe(normalize('foo/bar/baz'));
+            expect(subject(normalize('foo/bar/baz.bing.qux'))).toBe(normalize('foo/bar/baz.bing'));
+            expect(subject(normalize('foo.bar/baz.bing.qux'))).toBe(normalize('foo.bar/baz.bing'));
+            expect(subject(normalize('./foo.bar/baz.bing.qux'))).toBe(normalize('./foo.bar/baz.bing'));
+            expect(subject(normalize('./foo/bar/baz'))).toBe(normalize('./foo/bar/baz'));
+            expect(subject(normalize('../foo/bar/baz'))).toBe(normalize('../foo/bar/baz'));
         });
     });
 
@@ -76,9 +81,9 @@ describe('ImportResolver', function () {
             });
             spyOn(fs, 'readFileSync').andCallFake(function (str, encoding) {
                 switch(str) {
-                    case 'foo/bar':
+                    case 'foo' + path.sep + 'bar':
                         return 'bar';
-                    case 'foo/_baz':
+                    case 'foo' + path.sep + '_baz':
                         return 'baz';
                     default:
                         throw new Error();
@@ -90,16 +95,16 @@ describe('ImportResolver', function () {
         });
 
         it('should return the result of reading the cwd plus the filename', function () {
-            subject.cwd = 'foo/';
+            subject.cwd = 'foo' + path.sep;
             var output = subject.getFile('bar');
-            expect(fs.readFileSync).toHaveBeenCalledWith('foo/bar', {"encoding": "utf8"});
+            expect(fs.readFileSync).toHaveBeenCalledWith('foo' + path.sep + 'bar', {"encoding": "utf8"});
             expect(output).toBe('bar');
         });
 
         it('should also try reading "_filename" if "filename" does not exist', function () {
-            subject.cwd = 'foo/';
+            subject.cwd = 'foo' + path.sep;
             var output = subject.getFile('baz');
-            expect(fs.readFileSync).toHaveBeenCalledWith('foo/baz', {"encoding": "utf8"});
+            expect(fs.readFileSync).toHaveBeenCalledWith('foo' + path.sep + 'baz', {"encoding": "utf8"});
             expect(output).toBe('baz');
         });
     });
@@ -107,7 +112,7 @@ describe('ImportResolver', function () {
     describe('#normalizeImport', function () {
         beforeEach(function () {
             subject = ImportResolver.prototype.normalizeImport.bind({
-                "cwd": "foo/"
+                "cwd": "foo" + path.sep
             });
         });
         afterEach(function () {
@@ -121,17 +126,15 @@ describe('ImportResolver', function () {
 
         it('should replace "@import path/to/file" with a normalized file path via the cwd', function () {
             var str = '@import "bar/baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/bar/baz"; .foo { display: none; }');
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/bar/baz') + '"; .foo { display: none; }');
             str = '@import "./bar/baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/bar/baz"; .foo { display: none; }');
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/bar/baz') + '"; .foo { display: none; }');
             str = '@import "../bar/baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "' + process.cwd() + '/bar/baz"; .foo { display: none; }');
-            str = '@import "/bar/baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "/bar/baz"; .foo { display: none; }');
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/bar/baz') + '"; .foo { display: none; }');
             str = '@import "baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/baz"; .foo { display: none; }');
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/baz') + '"; .foo { display: none; }');
             str = '@import "./baz"; .foo { display: none; }';
-            expect(subject(str)).toBe('@import "' + process.cwd() + '/foo/baz"; .foo { display: none; }');
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/baz') + '"; .foo { display: none; }');
         });
     });
 

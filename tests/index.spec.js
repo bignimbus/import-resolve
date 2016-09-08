@@ -59,6 +59,19 @@ describe('importResolve integration', function () {
             expect(standardizeChars(output)).toBe('$variable_1 = 16px\n$variable_2 = 3em\n\n$another_var = #444\n\n.some-div\n    background: $another_var\n\n#some-id\n    font-weight: normal');
         });
     });
+
+    it('should resolve declared aliases to file paths', function () {
+        importResolve({
+            "pathToMain": "tests/alias/main.styl",
+            "ext": "styl",
+            "aliases": {
+                "someAlias": "./alias-one",
+                "~anotherAliasWith$pecialCh4racters": "./alias-two"
+            }
+        }, function (output) {
+            expect(standardizeChars(output)).toBe('.alias-one {\n    color: blue;\n}\n\n.alias-two {\n    background: white;\n}\n\n\n.alias {\n    display: block;\n}');
+        });
+    });
 });
 
 describe('file write system', function () {

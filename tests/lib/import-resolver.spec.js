@@ -120,7 +120,10 @@ describe('ImportResolver', function () {
     describe('#normalizeImport', function () {
         beforeEach(function () {
             subject = ImportResolver.prototype.normalizeImport.bind({
-                "cwd": "foo" + path.sep
+                "cwd": "foo" + path.sep,
+                "aliases": {
+                    "myAlias": "./bar/baz/qux"
+                }
             });
         });
         afterEach(function () {
@@ -143,6 +146,13 @@ describe('ImportResolver', function () {
             expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/baz') + '"; .foo { display: none; }');
             str = '@import "./baz"; .foo { display: none; }';
             expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/baz') + '"; .foo { display: none; }');
+        });
+
+        it('should replace "@import {{alias}}" with a normalized file path via the cwd', function () {
+            var str = '@import "myAlias"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/bar/baz/qux') + '"; .foo { display: none; }');
+            str = '@import "myAliasJK"; .foo { display: none; }';
+            expect(subject(str)).toBe('@import "' + normalize(process.cwd() + '/foo/myAliasJK') + '"; .foo { display: none; }');
         });
     });
 

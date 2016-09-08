@@ -15,7 +15,10 @@ describe('ImportResolver', function () {
             subject = new ImportResolver({
                 "output": "foo",
                 "ext": "bar",
-                "pathToMain": normalize("baz/bing")
+                "pathToMain": normalize("baz/bing"),
+                "aliases": {
+                    "myAlias": "qux"
+                }
             });
         });
         afterEach(function () {
@@ -30,6 +33,11 @@ describe('ImportResolver', function () {
         });
         it('should set the root path', function () {
             expect(subject.root).toEqual(process.cwd().split(path.sep).concat(['baz', 'bing']));
+        });
+        it('should set aliases', function () {
+            expect(subject.aliases).toEqual({
+                "myAlias": "qux"
+            });
         });
     });
 

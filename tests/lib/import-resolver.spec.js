@@ -64,19 +64,26 @@ describe('ImportResolver', function () {
 
     describe('#trimExtension', function () {
         beforeEach(function () {
-            subject = ImportResolver.prototype.trimExtension;
+            subject = ImportResolver.prototype.trimExtension.bind({
+                ext: 'qux'
+            });
         });
         afterEach(function () {
             subject = null;
         });
 
         it('should remove the extension from the provided path', function () {
-            expect(subject(normalize('foo/bar/baz.bing'))).toBe(normalize('foo/bar/baz'));
+            expect(subject(normalize('foo/bar/baz.qux'))).toBe(normalize('foo/bar/baz'));
             expect(subject(normalize('foo/bar/baz.bing.qux'))).toBe(normalize('foo/bar/baz.bing'));
             expect(subject(normalize('foo.bar/baz.bing.qux'))).toBe(normalize('foo.bar/baz.bing'));
             expect(subject(normalize('./foo.bar/baz.bing.qux'))).toBe(normalize('./foo.bar/baz.bing'));
             expect(subject(normalize('./foo/bar/baz'))).toBe(normalize('./foo/bar/baz'));
             expect(subject(normalize('../foo/bar/baz'))).toBe(normalize('../foo/bar/baz'));
+        });
+
+        it('should not trim the string after the last "." if that string is not the extension', function () {
+            expect(subject(normalize('foo/bar/baz.bing.qux'))).toBe(normalize('foo/bar/baz.bing'));
+            expect(subject(normalize('foo/bar/baz.bing'))).toBe(normalize('foo/bar/baz.bing'));
         });
     });
 

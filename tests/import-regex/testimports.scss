@@ -1,0 +1,31 @@
+/**
+incorrect capture samples ..
+*/
+
+//	in a single line comment
+// \`.class-name { @import "bootstrap"; }\`).
+
+//	in multiline line comments
+/*
+
+@import "bootstrap"
+ \`.class-name { @import "bootstrap"; }\`).
+*/
+
+//	in a single line ending comment 
+other statements etc ... // \`.class-name { @import "bootstrap"; }\`).
+
+/**
+	valid import statements 
+*/
+
+// whitespace and import
+	@import "custom";
+ @import "variables";
+		@import "mixins";
+
+// normal import
+@import "normalize";
+
+//another normal import
+.namespace { @import 'namespace-styles' }

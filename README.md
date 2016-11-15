@@ -81,6 +81,16 @@ importResolve({
 });
 ```
 
+## Using import-resolve from CLI
+You can also use cli version of import resolve as described below.
+```bash 
+import-resolve inputfile outputfile [extension]
+```
+  
+* first parameter is inputfile  
+* second parameter is outputfile  
+* third (optional) parameter is extension type (default is scss) 
+
 ## Tests
 
 ```bash

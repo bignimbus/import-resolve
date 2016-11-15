@@ -187,21 +187,17 @@ describe('ImportResolver', function () {
         afterEach(function () {
             subject = null;
         });
-        
+
         it('should resolve imports correctly', function(){
-            
             subject.resolve(subject.dist);
 
-            let matches = subject.read.argsForCall; 
-            expect(path.basename(matches[0][0])).toBe('custom')
-            expect(path.basename(matches[1][0])).toBe('variables')
-            expect(path.basename(matches[2][0])).toBe('mixins')
-            expect(path.basename(matches[3][0])).toBe('normalize')
-            expect(path.basename(matches[4][0])).toBe('namespace-styles')
-            
-                    
+            var matches = subject.read.argsForCall;
+            expect(path.basename(matches[0][0])).toBe('custom');
+            expect(path.basename(matches[1][0])).toBe('variables');
+            expect(path.basename(matches[2][0])).toBe('mixins');
+            expect(path.basename(matches[3][0])).toBe('normalize');
+            expect(path.basename(matches[4][0])).toBe('namespace-styles');
          });
-        
     });
 
     describe('#write', function () {

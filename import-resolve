@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+var importResolve = require('./index');
+
+// spits out a master dist file with all your wonderful stylesheet 
+// things concatenated 
+var fin = process.argv[2];
+var fout = process.argv[3];
+var fext = process.argv[4] || "scss";
+
+importResolve({
+    "ext": fext,
+    "pathToMain": fin,
+     "output": fout
+});

@@ -18,7 +18,11 @@ describe('ImportResolver', function () {
                 "pathToMain": normalize("baz/bing"),
                 "aliases": {
                     "myAlias": "qux"
-                }
+                },
+                "ignorePaths": [
+                    "~path/to/ignore"
+                ],
+                "ignorePathPattern": /^~/
             });
         });
         afterEach(function () {
@@ -38,6 +42,12 @@ describe('ImportResolver', function () {
             expect(subject.aliases).toEqual({
                 "myAlias": "qux"
             });
+        });
+        it('should set ignore paths', function () {
+            expect(subject.ignorePaths).toEqual(["~path/to/ignore"]);
+        });
+        it('should set ignore pattern', function () {
+            expect(subject.ignorePathPattern).toEqual(/^~/);
         });
     });
 
@@ -130,7 +140,8 @@ describe('ImportResolver', function () {
                 "cwd": "foo" + path.sep,
                 "aliases": {
                     "myAlias": "./bar/baz/qux"
-                }
+                },
+                "ignorePaths": []
             });
         });
         afterEach(function () {

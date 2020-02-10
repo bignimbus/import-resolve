@@ -72,6 +72,28 @@ describe('importResolve integration', function () {
             expect(standardizeChars(output)).toBe('.alias-one {\n    color: blue;\n}\n\n.alias-two {\n    background: white;\n}\n\n\n.alias {\n    display: block;\n}');
         });
     });
+
+    it('should ignore paths specified in the ignorePaths array', function() {
+        importResolve({
+            "pathToMain": "tests/ignore/main.styl",
+            "ext": "styl",
+            "ignorePaths": [
+                "~path/to/be/ignored"
+            ]
+        }, function (output) {
+            expect(standardizeChars(output)).toBe('@import \'~path/to/be/ignored\';\n.import-two {\n    color: blue;\n}\n\n.ignore {\n    display: block;\n}');
+        });
+    });
+
+    it('should ignore paths that match the specified ignorePathPattern', function() {
+        importResolve({
+            "pathToMain": "tests/ignore/main.styl",
+            "ext": "styl",
+            "ignorePathPattern": /^~/
+        }, function (output) {
+            expect(standardizeChars(output)).toBe('@import \'~path/to/be/ignored\';\n.import-two {\n    color: blue;\n}\n\n.ignore {\n    display: block;\n}');
+        });
+    });
 });
 
 describe('file write system', function () {

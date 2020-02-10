@@ -79,6 +79,24 @@ importResolve({
         "~myUniqueAlias": "path/to/unique/file.less"
     }
 });
+
+// You can pass an array of import paths that you'd like the resolver to ignore. Ignored imports will remain in the output file.
+importResolve({
+    "ext": "less",
+    "pathToMain": "path/to/main.less",
+    "output": "path/to/output.less",
+    "ignorePaths": [
+        "path/to/ignored/file.less"
+    ]
+});
+
+// You can also ignore imports based on a RegExp pattern. Ignored imports will remain in the output file.
+importResolve({
+    "ext": "less",
+    "pathToMain": "path/to/main.less",
+    "output": "path/to/output.less",
+    "ignorePathPattern": /^~/
+});
 ```
 
 ## Tests
